@@ -1,48 +1,38 @@
 import React, { Component } from 'react';
 import '../css/App.css';
+
 import AddAppointments from './AddAppointments';
 import SearchAppointments from './SearchAppointments';
 import ListAppointments from './ListAppointments';
+
 import { without } from 'lodash';
 
 class App extends Component {
-
   constructor() {
-    // pass data from parent component or other component to this
-    super(); 
-    this.state = { 
-      myName: "Warodom",
+    super();
+    this.state = {
       myAppointments: [],
-      lastIndex: 0,
       formDisplay: false,
-      orderBy: "aptDate",
-      orderDir: "desc",
-      filterText: 'ba'
-    }
+      orderBy: 'petName',
+      orderDir: 'asc',
+      queryText: '',
+      lastIndex: 0
+    };
     this.deleteAppointment = this.deleteAppointment.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.addAppointment = this.addAppointment.bind(this);
     this.changeOrder = this.changeOrder.bind(this);
+    this.searchApts = this.searchApts.bind(this);
   }
 
-  deleteAppointment(apt) {
-    let tempApts = this.state.myAppointments;
-    tempApts = without(tempApts, apt)
-
+  toggleForm() {
     this.setState({
-      myAppointments: tempApts
-    })
+      formDisplay: !this.state.formDisplay
+    });
   }
 
-  addAppointment(apt) {
-    let tempApts = this.state.myAppointments;
-    apt.aptId = this.state.lastIndex
-    tempApts.unshift(apt)
-
-    this.setState({
-      myAppointments: tempApts,
-      lastIndex: this.state.lastIndex + 1
-    })
+  searchApts(query) {
+    this.setState({ queryText: query });
   }
 
   changeOrder(order, dir) {
@@ -52,10 +42,23 @@ class App extends Component {
     });
   }
 
-  toggleForm() {
+  addAppointment(apt) {
+    let tempApts = this.state.myAppointments;
+    apt.aptId = this.state.lastIndex;
+    tempApts.unshift(apt);
     this.setState({
-      formDisplay: !this.state.formDisplay
-    })
+      myAppointments: tempApts,
+      lastIndex: this.state.lastIndex + 1
+    });
+  }
+
+  deleteAppointment(apt) {
+    let tempApts = this.state.myAppointments;
+    tempApts = without(tempApts, apt);
+
+    this.setState({
+      myAppointments: tempApts
+    });
   }
 
   componentDidMount() {
@@ -64,9 +67,7 @@ class App extends Component {
       .then(result => {
         const apts = result.map(item => {
           item.aptId = this.state.lastIndex;
-          this.setState({
-            lastIndex: this.state.lastIndex + 1
-          });
+          this.setState({ lastIndex: this.state.lastIndex + 1 });
           return item;
         });
         this.setState({
@@ -76,30 +77,38 @@ class App extends Component {
   }
 
   render() {
-
     let order;
-    let filteredApts =  this.state.myAppointments;
-    if(this.state.orderDir === 'asc') {
+    let filteredApts = this.state.myAppointments;
+    if (this.state.orderDir === 'asc') {
       order = 1;
     } else {
       order = -1;
     }
 
-    filteredApts =  filteredApts.sort((a,b) => {
-      if (a[this.state.orderBy].toLowerCase() < 
+    filteredApts = filteredApts
+      .sort((a, b) => {
+        if (
+          a[this.state.orderBy].toLowerCase() <
           b[this.state.orderBy].toLowerCase()
-          ) {
-            return -1 * order;
-          } else {
-            return 1 * order;
-          }
-    }).filter(eachItem => {
-      return(
-        eachItem['petName'].toLowerCase().includes(this.state.filterText.toLowerCase()) || 
-        eachItem['ownerName'].toLowerCase().includes(this.state.filterText.toLowerCase()) || 
-        eachItem['aptNotes'].toLowerCase().includes(this.state.filterText.toLowerCase()) 
-      );
-    });
+        ) {
+          return -1 * order;
+        } else {
+          return 1 * order;
+        }
+      })
+      .filter(eachItem => {
+        return (
+          eachItem['petName']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase()) ||
+          eachItem['ownerName']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase()) ||
+          eachItem['aptNotes']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase())
+        );
+      });
 
     return (
       <main className="page bg-white" id="petratings">
@@ -107,18 +116,21 @@ class App extends Component {
           <div className="row">
             <div className="col-md-12 bg-white">
               <div className="container">
-                <AddAppointments 
-                formDisplay={this.state.formDisplay}
-                toggleForm={this.toggleForm}
-                addAppointment={this.addAppointment}
+                <AddAppointments
+                  formDisplay={this.state.formDisplay}
+                  toggleForm={this.toggleForm}
+                  addAppointment={this.addAppointment}
                 />
-                <SearchAppointments 
+                <SearchAppointments
                   orderBy={this.state.orderBy}
                   orderDir={this.state.orderDir}
                   changeOrder={this.changeOrder}
+                  searchApts={this.searchApts}
                 />
-                <ListAppointments appointments={ filteredApts }
-                deleteAppointment={ this.deleteAppointment } />
+                <ListAppointments
+                  appointments={filteredApts}
+                  deleteAppointment={this.deleteAppointment}
+                />
               </div>
             </div>
           </div>
