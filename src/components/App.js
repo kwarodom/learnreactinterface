@@ -5,6 +5,15 @@ import SearchAppointments from './SearchAppointments';
 import ListAppointments from './ListAppointments';
 
 class App extends Component {
+
+  constructor() {
+    // pass data from parent component or other component to this
+    super(); 
+    this.state = { 
+      myName: "Warodom"
+    }
+  }
+
   render() {
     return (
       <main className="page bg-white" id="petratings">
@@ -12,6 +21,7 @@ class App extends Component {
           <div className="row">
             <div className="col-md-12 bg-white">
               <div className="container">
+                { this.state.myName }
                 <AddAppointments />
                 <SearchAppointments />
                 <ListAppointments />
