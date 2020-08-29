@@ -10,8 +10,22 @@ class App extends Component {
     // pass data from parent component or other component to this
     super(); 
     this.state = { 
-      myName: "Warodom"
+      myName: "Warodom",
+      myAppointments: []
     }
+  }
+
+  componentDidMount() {
+    fetch('./data.json')
+      .then(response => response.json())
+      .then(result => {
+        const apts = result.map(item => {
+          return item;
+        });
+        this.setState({
+          myAppointments: apts
+        });
+      });
   }
 
   render() {
