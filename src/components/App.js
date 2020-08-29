@@ -5,7 +5,7 @@ import AddAppointments from './AddAppointments';
 import SearchAppointments from './SearchAppointments';
 import ListAppointments from './ListAppointments';
 
-import { without } from 'lodash';
+import { without, findIndex } from 'lodash';
 
 class App extends Component {
   constructor() {
@@ -23,6 +23,7 @@ class App extends Component {
     this.addAppointment = this.addAppointment.bind(this);
     this.changeOrder = this.changeOrder.bind(this);
     this.searchApts = this.searchApts.bind(this);
+    this.updateInfo = this.updateInfo.bind(this);
   }
 
   toggleForm() {
@@ -59,6 +60,17 @@ class App extends Component {
     this.setState({
       myAppointments: tempApts
     });
+  }
+
+  updateInfo(name, value, id) {
+    let tempApts = this.state.myAppointments;
+    let aptIndex = findIndex(this.state.myAppointments, {
+      aptId: id
+    });
+    tempApts[aptIndex][name] = value;
+    this.setState({
+      myAppointments: tempApts
+    })
   }
 
   componentDidMount() {
@@ -130,6 +142,7 @@ class App extends Component {
                 <ListAppointments
                   appointments={filteredApts}
                   deleteAppointment={this.deleteAppointment}
+                  updateInfo={this.updateInfo}
                 />
               </div>
             </div>
